@@ -14,62 +14,32 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import ReactWordcloud from 'react-wordcloud';
-import {initApi, ExtractedTextEvent, ApiEvents} from '@acrolinx/app-sdk';
-import {DUMMY_TEXT} from './dummy-data';
+import {initApi, ApiEvents} from '@acrolinx/app-sdk';
 import './index.css';
-import {STOPWORDS_BY_LANGUAGE} from './stop-words';
 
-interface AppComponentProps {
-  acrolinxAnalysisResult: ExtractedTextEvent;
-}
-
-function AppComponent({acrolinxAnalysisResult}: AppComponentProps) {
-  if (_.isEmpty(acrolinxAnalysisResult.text)) {
-    return <div className="message">{'Welcome to Word Cloud'}</div>
-  }
-
-  const stopWords = STOPWORDS_BY_LANGUAGE[acrolinxAnalysisResult.languageId] || new Set();
-
-  const wordsWithFrequency = _.chain(acrolinxAnalysisResult.text.toLowerCase().split(/\W+/))
-    .filter(word => word.length > 1 && !stopWords.has(word))
-    .countBy()
-    .map((freq, text) => ({text, value: freq}))
-    .value();
-
-  if (_.isEmpty(wordsWithFrequency)) {
-    return <div className="message">{'Your document should contain some non-stop-words.'}</div>
-  }
-
-  return <ReactWordcloud words={wordsWithFrequency}/>
-}
-
-function renderApp(extractedTextEvent: ExtractedTextEvent) {
-  ReactDOM.render(
-    <AppComponent acrolinxAnalysisResult={extractedTextEvent}/>, document.getElementById('root')
-  );
-}
-
-const acrolinxAppApi = initApi({
-  appSignature: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiV29yZENsb3VkIiwiaWQiOiI2NjZmNzc4OS0zNTliLTRlNzMtYjlkMi00YTFmMWNkNDlmNDkiLCJ0eXBlIjoiQVBQIiwiaWF0IjoxNTYxNjQ1NDYyfQ.zQs7rXYkvLVzkMAyhQsHTpr1q1O_F4XPB_N7QfBbasE',
-  title: 'WordCloud',
-
+// Initialize the Acrolinx App API.
+const api = initApi({
+  title: 'Extract Text',
   button: {
-    text: 'Generate Word Cloud',
-    tooltip: 'Generate a word cloud of your document content'
+    text: 'Extract Text',
+    tooltip: 'Extract text from the document'
   },
-
   requiredEvents: [ApiEvents.textExtracted],
   requiredCommands: []
 });
 
-acrolinxAppApi.events.textExtracted.addEventListener(renderApp);
-
-const useDummyData = _.includes(window.location.href, 'usedummydata');
-renderApp({
-  text: useDummyData ? DUMMY_TEXT : '',
-  languageId: 'en'
+// Listen to the textExtracted event.
+api.events.textExtracted.addEventListener(textExtractedEvent => {
+  document.getElementById('languageId')!.innerText = textExtractedEvent.languageId;
+  document.getElementById('extractedText')!.innerText = textExtractedEvent.text;
+  document.getElementById('wordCount')!.innerText = countWords(textExtractedEvent.text).toString();
 });
+
+// Do some "processing" on the extracted text.
+function countWords(text: string) {
+  const wordMatches = text.match(/\S+/g); // These are not really "words".
+  if (!wordMatches) {
+    return 0;
+  }
+  return wordMatches.length;
+}
