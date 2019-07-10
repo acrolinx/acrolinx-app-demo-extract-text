@@ -1,5 +1,5 @@
-# Word Cloud - Acrolinx App Demo
-This Acrolinx app demonstrates how to implement a simple word-cloud app in the Acrolinx Sidebar.
+# Extract Text - Acrolinx App Demo
+This Acrolinx app that demonstrates how to get the extracted text from the document. 
 
 Demonstrated Features:
  * Extract text from document
