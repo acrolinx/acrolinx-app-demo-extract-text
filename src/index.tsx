@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {initApi, ApiEvents} from '@acrolinx/app-sdk';
+import {initApi, RequiredEvents} from '@acrolinx/app-sdk';
 import './index.css';
 
 // Initialize the Acrolinx App API.
@@ -24,7 +24,7 @@ const api = initApi({
     text: 'Extract Text',
     tooltip: 'Extract text from the document'
   },
-  requiredEvents: [ApiEvents.textExtracted],
+  requiredEvents: [RequiredEvents.textExtracted],
   requiredCommands: []
 });
 
